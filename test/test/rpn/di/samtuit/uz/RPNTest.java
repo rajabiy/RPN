@@ -19,8 +19,8 @@ public class RPNTest {
     @Test
     public void textRPNtest()
     {
-        RPN rpn = new RPN("12*(2+5)/6");
-        assertEquals("", rpn.textRPN());
+        RPN rpn = new RPN("12*(3+4)/5");
+        assertEquals(16.8d, rpn.calcRPN(),0);
     }
 
 }
