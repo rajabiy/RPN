@@ -11,7 +11,9 @@ package rpn.di.samtuit.uz;
  * @author amin
  */
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Stack;
 
 /**
  * Created by amin on 08.06.17.
@@ -33,59 +35,68 @@ public class RPN {
     {
         int priority;
 
-        for (int i=0; i<exp.length()-1;i++)
+        for (int i=0; i<=exp.length()-1; i++)
         {
-            String current_char = exp.substring(i,i+1);
+            String current_char;
+            current_char = exp.substring(i,i+1);
+            
             priority = getPriority(current_char);
+            
+            switch (priority) {
+                case 0:
+                    int j=0;
 
-            if (priority==0)
-            {
-                int j=0;
-                while (exp.charAt(i+j)>='0' &&  exp.charAt(i+j)<='9')
-                {
-                    j++;
-                }                     
-                primary_stack.addLast(exp.substring(i,i+j+1));
-                i=i+j;
-                System.out.println("i="+i);                
-            }
-            else if (priority==2 || priority==3)
-            {    
-                if (!secondary_stack.isEmpty())
-                    if (getPriority(secondary_stack.getLast())>=priority)
+                    for(int k=0; i+k<=exp.length()-1; k++)
                     {
-                        primary_stack.addLast(secondary_stack.pollLast());
-                    }
-                secondary_stack.addLast(current_char); 
-
-                    
-            }
-            else if (priority==1)
-            {    
-                if (")".equals(current_char))
-                {
-                    while (!("(".equals(secondary_stack.getLast())))
+                        if (exp.charAt(i+k)>='0' &&  exp.charAt(i+k)<='9')
+                        {
+                            j=k;
+                        }
+                        else
+                            k=exp.length();
+                    }   primary_stack.addLast(exp.substring(i,i+j+1));
+                    i=i+j;
+                    break;
+                case 2:
+                case 3:
+                    if (!secondary_stack.isEmpty())
+                        if (getPriority(secondary_stack.getLast())>=priority)
+                        {
+                            primary_stack.addLast(secondary_stack.pollLast());
+                        }
+                    secondary_stack.addLast(current_char);
+                    break;
+                case 1:
+                    if (")".equals(current_char))
                     {
-                        primary_stack.addLast(secondary_stack.pollLast());
+                        while (!("(".equals(secondary_stack.getLast())))
+                        {
+                            primary_stack.addLast(secondary_stack.pollLast());
+                        }
+                        secondary_stack.pollLast();
                     }
-                    secondary_stack.pollLast();
-                }
-                else secondary_stack.addLast(current_char);
-            }            
+                    else secondary_stack.addLast(current_char);
+                    break;
+                default:
+                    break;
+            }
 
         }
 
         while (!secondary_stack.isEmpty())
             primary_stack.addLast(secondary_stack.pollLast());
-
     }
 
     public String textRPN()
-    {
-        String text=new String();
-        while (!primary_stack.isEmpty())
-            text = text + "," + primary_stack.pollFirst();
-
+    {  
+        String text = new String();
+        Iterator itr;
+        itr = primary_stack.iterator();
+        
+        while (itr.hasNext())
+        {
+            text += itr.next() + " ";
+        }
         return text;
     }
 
@@ -107,4 +118,41 @@ public class RPN {
         return 0;
 
     }
+    
+    public Double calcRPN()
+    {
+        Double value;
+        Stack<Double> stack;
+        stack = new Stack<>();
+        
+        while (!primary_stack.isEmpty())
+        {
+            String operator;
+            Double b;
+            Double a;
+            if ("+-*/".contains(primary_stack.getFirst()))
+            {
+                if (!primary_stack.isEmpty())
+                {
+                    operator = primary_stack.pollFirst();
+                    b = stack.pop();
+                    a = stack.pop();
+                    if ("+".contains(operator))
+                        stack.push(a + b);
+                    else if ("-".contains(operator))
+                        stack.push(a - b);
+                    else if ("*".contains(operator))
+                        stack.push(a * b);  
+                    else if ("/".contains(operator))
+                        stack.push(a / b); 
+                }
+            }
+            else
+            {
+                stack.push(Double.parseDouble(primary_stack.pollFirst()));
+            }
+        }
+        return stack.pop();
+    }
+ 
 }
