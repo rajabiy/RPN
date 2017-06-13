@@ -100,20 +100,21 @@ public class BoolRPN{
     
     public Boolean calcRPN()
     {
-        System.out.println(primary_stack);
+        final Deque<String> p_stack = primary_stack;
+        System.out.println(p_stack);
         Stack<Boolean> stack;
         stack = new Stack<>();
         
-        while (!primary_stack.isEmpty())
+        while (!p_stack.isEmpty())
         {
             String operator;
             Boolean b;
             Boolean a;
-            if ("&|~".contains(primary_stack.getFirst()))
+            if ("&|~".contains(p_stack.getFirst()))
             {
-                if (!primary_stack.isEmpty())
+                if (!p_stack.isEmpty())
                 {
-                    operator = primary_stack.pollFirst();
+                    operator = p_stack.pollFirst();
                     if ("&".contains(operator))
                         stack.push(stack.pop() && stack.pop());
                     else if ("|".contains(operator))
@@ -124,15 +125,11 @@ public class BoolRPN{
             }
             else
             {
-                stack.push(Boolean.parseBoolean(primary_stack.pollFirst()));
+                stack.push(Boolean.parseBoolean(p_stack.pollFirst()));
             }
             
         }
         return stack.pop();
-    }  
-    
-    public static void main(String[] args) {
-        BoolRPN rpn = new BoolRPN("~(t|f)&t");
-        System.out.println(rpn.calcRPN());
-    }
+    } 
+
 }
